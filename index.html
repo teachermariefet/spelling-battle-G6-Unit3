@@ -20,7 +20,6 @@
             background: #2c3e50;
         }
 
-        /* Home Screen with Custom Image */
         #start-page {
             position: absolute; width: 100%; height: 100%;
             background: url('homescreen.jpg') no-repeat center center/cover;
@@ -67,7 +66,6 @@
 
         #timer-bomb { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 110px; height: 110px; background: #222; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; border: 8px solid #ff4757; z-index: 10; }
 
-        /* Results & Confetti */
         #results-screen {
             display: none; position: absolute; width: 100%; height: 100%; 
             background: rgba(0,0,0,0.95); z-index: 500; color: white; 
@@ -76,13 +74,11 @@
         }
 
         .confetti {
-            position: absolute; width: 10px; height: 10px; background: #f00;
-            top: -10px; animation: fall linear forwards;
+            position: absolute; width: 10px; height: 10px; top: -10px;
+            animation: fall linear forwards;
         }
 
-        @keyframes fall {
-            to { transform: translateY(100vh) rotate(720deg); }
-        }
+        @keyframes fall { to { transform: translateY(100vh) rotate(720deg); } }
     </style>
 </head>
 <body>
@@ -120,8 +116,7 @@
 
     <script>
         const AudioCtx = window.AudioContext || window.webkitAudioContext;
-        let audioCtx;
-        let bgSource;
+        let audioCtx, bgSource;
 
         const Sounds = {
             async initMusic() {
@@ -133,11 +128,11 @@
                     bgSource.buffer = audioBuffer;
                     bgSource.loop = true;
                     const gainNode = audioCtx.createGain();
-                    gainNode.gain.value = 0.3; // Background volume
+                    gainNode.gain.value = 0.3;
                     bgSource.connect(gainNode);
                     gainNode.connect(audioCtx.destination);
                     bgSource.start(0);
-                } catch (e) { console.error("Music failed to load", e); }
+                } catch (e) { console.warn("Background music file not found."); }
             },
             playEffect(freq, type, duration, vol) {
                 if(!audioCtx) return;
@@ -154,17 +149,16 @@
             buzz() { this.playEffect(110, 'sawtooth', 0.4, 0.15); }
         };
 
-        const words = ["COAT", "DRESS", "HAT", "JACKET", "SKIRT", "SHIRT", "JEANS", "PANTS", "SHORTS"];
+        // EXACT VOCABULARY LIST AS TYPED
+        const words = ["coat", "dress", "hat", "jacket", "skirt", "T-shirt", "jeans", "pants", "shorts"];
+        
         let gameState = {
             a: { score: 0, wordIndex: 0, currentWord: '', progress: 0 },
             b: { score: 0, wordIndex: 0, currentWord: '', progress: 0 }
         };
         let timeLeft = 120, gameActive = false;
 
-        document.getElementById('play-btn').addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            initAndStart();
-        });
+        document.getElementById('play-btn').addEventListener('touchstart', (e) => { e.preventDefault(); initAndStart(); });
         document.getElementById('play-btn').addEventListener('click', initAndStart);
 
         function initAndStart() {
@@ -187,6 +181,8 @@
             const state = gameState[side];
             state.currentWord = words[state.wordIndex];
             state.progress = 0;
+            
+            // Image filename uses lowercase version
             document.getElementById(`img-${side}`).src = `${state.currentWord.toLowerCase()}.jpg`;
             
             const boxesCont = document.getElementById(`boxes-${side}`);
@@ -200,6 +196,7 @@
 
             const lettersCont = document.getElementById(`letters-${side}`);
             lettersCont.innerHTML = '';
+            // Scramble the exact characters (preserving case and hyphens)
             const scrambled = state.currentWord.split('').sort(() => Math.random() - 0.5);
             
             scrambled.forEach(char => {
@@ -252,13 +249,10 @@
             document.getElementById('game-container').style.display = 'none';
             const screen = document.getElementById('results-screen');
             screen.style.display = 'flex';
-            
             const sA = gameState.a.score;
             const sB = gameState.b.score;
-            let winText = sA > sB ? "TEAM A WINS!" : sB > sA ? "TEAM B WINS!" : "DRAW!";
-            document.getElementById('winner-msg').innerText = winText;
+            document.getElementById('winner-msg').innerText = sA > sB ? "TEAM A WINS!" : sB > sA ? "TEAM B WINS!" : "DRAW!";
             document.getElementById('score-summary').innerText = `TEAM A: ${sA} vs TEAM B: ${sB}`;
-            
             createConfetti();
         }
 
