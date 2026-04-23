@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Spelling Battle - Tap Mode</title>
+    <title>Smart Board Spelling Battle</title>
     <link href="https://fonts.googleapis.com/css2?family=Balsamiq+Sans:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -14,105 +14,90 @@
         body, html {
             margin: 0; padding: 0; height: 100%; overflow: hidden;
             font-family: 'Balsamiq Sans', cursive;
-            touch-action: manipulation;
+            touch-action: none; 
+            user-select: none;
+            -webkit-user-select: none;
+            background: #2c3e50;
         }
 
+        /* Home Screen with Custom Image */
         #start-page {
             position: absolute; width: 100%; height: 100%;
-            background: #f1c40f;
+            background: url('homescreen.jpg') no-repeat center center/cover;
             display: flex; flex-direction: column; align-items: center; 
-            justify-content: center; 
-            z-index: 100;
+            justify-content: center; z-index: 100;
         }
 
         .ui-overlay {
             display: flex; flex-direction: column; gap: 20px; align-items: center;
-            background: rgba(255, 255, 255, 0.9);
-            padding: 40px;
-            border-radius: 30px;
-            box-shadow: 0 10px 0 rgba(0,0,0,0.1);
-        }
-
-        #music-toggle {
-            position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
-            z-index: 300; padding: 10px 25px; font-size: 18px;
-            font-family: 'Balsamiq Sans', cursive; font-weight: bold;
-            background: white; border: 3px solid #333; border-radius: 50px;
-            cursor: pointer; box-shadow: 0 4px 0 #333;
+            background: rgba(255, 255, 255, 0.9); padding: 50px; border-radius: 40px;
+            box-shadow: 0 15px 0 rgba(0,0,0,0.2);
         }
 
         #play-btn {
-            padding: 25px 80px; font-size: 40px; cursor: pointer; background: #2ecc71; color: white;
-            border: 5px solid #fff; border-radius: 20px; font-family: 'Balsamiq Sans', cursive;
-            font-weight: bold; box-shadow: 0 10px 0 #27ae60; transition: 0.1s;
-        }
-        #play-btn:active { transform: translateY(4px); box-shadow: 0 6px 0 #27ae60; }
-
-        #edit-modal {
-            display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            background: white; padding: 30px; border-radius: 20px; border: 5px solid #333; z-index: 400;
+            padding: 30px 100px; font-size: 50px; cursor: pointer; background: #2ecc71; color: white;
+            border: 6px solid #fff; border-radius: 25px; font-family: 'Balsamiq Sans';
+            font-weight: bold; box-shadow: 0 12px 0 #27ae60;
         }
 
         #game-container { display: none; height: 100%; width: 100%; flex-direction: row; position: relative; }
 
-        .side { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: space-around; padding: 20px; transition: background 0.3s; }
-        #side-a { background: #fff0f0; border-right: 4px dashed #ccc; }
+        .side { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: space-around; padding: 20px; }
+        #side-a { background: #fff0f0; border-right: 5px solid #333; }
         #side-b { background: #f0faff; }
 
-        .score-display { font-size: 40px; font-weight: bold; }
+        .score-display { font-size: 45px; font-weight: bold; background: white; padding: 10px 30px; border-radius: 50px; border: 4px solid #333; }
         .side-a-text { color: var(--team-a); }
         .side-b-text { color: var(--team-b); }
 
-        .vocab-img { 
-            width: 280px; height: 200px; object-fit: contain; border-radius: 20px; 
-            border: 8px solid #333; background: #fff;
-        }
+        .vocab-img { width: 280px; height: 220px; object-fit: contain; border: 8px solid #333; border-radius: 20px; background: white; }
 
-        .boxes-container, .letters-container { display: flex; gap: 10px; justify-content: center; min-height: 80px; flex-wrap: wrap; }
-        .box { width: 65px; height: 65px; border: 4px dashed #aaa; border-radius: 12px; background: rgba(255,255,255,0.7); display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: bold; color: #333; }
-        .box.filled { border: 4px solid #27ae60; background: #e8f8f0; border-style: solid; }
+        .boxes-container { display: flex; gap: 12px; justify-content: center; margin: 20px 0; }
+        .box { width: 75px; height: 75px; border: 4px dashed #999; border-radius: 15px; background: rgba(255,255,255,0.5); display: flex; align-items: center; justify-content: center; font-size: 38px; font-weight: bold; }
+        .box.filled { border: 5px solid #27ae60; background: #fff; color: #27ae60; border-style: solid; }
 
+        .letters-container { display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; max-width: 90%; }
         .letter { 
-            width: 70px; height: 70px; background: white; border: 4px solid #333; border-radius: 12px; 
-            display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: bold; 
-            cursor: pointer; box-shadow: 0 6px 0 #333; user-select: none; transition: transform 0.1s, background 0.2s;
+            width: 85px; height: 85px; background: white; border: 5px solid #333; border-radius: 15px; 
+            display: flex; align-items: center; justify-content: center; font-size: 40px; font-weight: bold; 
+            box-shadow: 0 8px 0 #333; cursor: pointer; 
         }
-        .letter:active { transform: translateY(4px); box-shadow: 0 2px 0 #333; }
+        .letter:active { transform: translateY(4px); box-shadow: 0 4px 0 #333; }
         .letter.wrong { background: #ff4757 !important; color: white; }
 
-        #timer-bomb { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 100px; height: 100px; background: #222; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; border: 6px solid #ff4757; z-index: 10; }
-        #timer-bomb span { font-size: 35px; font-weight: bold; }
+        #timer-bomb { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 110px; height: 110px; background: #222; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; border: 8px solid #ff4757; z-index: 10; }
 
+        /* Results & Confetti */
         #results-screen {
             display: none; position: absolute; width: 100%; height: 100%; 
             background: rgba(0,0,0,0.95); z-index: 500; color: white; 
             flex-direction: column; align-items: center; justify-content: center;
+            overflow: hidden;
+        }
+
+        .confetti {
+            position: absolute; width: 10px; height: 10px; background: #f00;
+            top: -10px; animation: fall linear forwards;
+        }
+
+        @keyframes fall {
+            to { transform: translateY(100vh) rotate(720deg); }
         }
     </style>
 </head>
 <body>
 
-    <button id="music-toggle">🎵 Music: ON</button>
-
     <div id="start-page">
         <div class="ui-overlay">
-            <h1 style="margin-top:0; color:#333;">SPELLING BATTLE</h1>
+            <h1 style="font-size: 60px; margin: 0 0 20px 0; color: #333;">SPELLING BATTLE</h1>
             <button id="play-btn">START</button>
-            <button id="edit-btn" style="background:none; border:none; color:#666; cursor:pointer; text-decoration:underline;">Edit Words</button>
         </div>
-    </div>
-
-    <div id="edit-modal">
-        <h3>Vocabulary List (comma separated)</h3>
-        <textarea id="vocab-input" style="width:300px; height:100px;">coat, dress, hat, jacket, skirt, shirt, jeans, pants, shorts</textarea>
-        <br><br>
-        <button onclick="closeEdit()" style="padding:10px 20px;">SAVE</button>
     </div>
 
     <div id="game-container">
         <div class="side" id="side-a">
-            <div class="score-display side-a-text">TEAM A: <span id="score-a">0</span></div>
-            <img id="img-a" class="vocab-img" src="" alt="Word">
+            <div class="score-display side-a-text">A: <span id="score-a">0</span></div>
+            <img id="img-a" class="vocab-img" src="" alt="">
             <div id="boxes-a" class="boxes-container"></div>
             <div id="letters-a" class="letters-container"></div>
         </div>
@@ -120,30 +105,41 @@
         <div id="timer-bomb"><span id="timer-val">120</span></div>
 
         <div class="side" id="side-b">
-            <div class="score-display side-b-text">TEAM B: <span id="score-b">0</span></div>
-            <img id="img-b" class="vocab-img" src="" alt="Word">
+            <div class="score-display side-b-text">B: <span id="score-b">0</span></div>
+            <img id="img-b" class="vocab-img" src="" alt="">
             <div id="boxes-b" class="boxes-container"></div>
             <div id="letters-b" class="letters-container"></div>
         </div>
     </div>
 
     <div id="results-screen">
-        <h1 id="winner-msg">TEAM A WINS!</h1>
-        <h2 id="score-summary"></h2>
-        <button onclick="location.reload()" style="padding:15px 40px; font-size:20px; cursor:pointer; border-radius:10px;">PLAY AGAIN</button>
+        <h1 id="winner-msg" style="font-size: 80px; margin-bottom: 10px;"></h1>
+        <h2 id="score-summary" style="font-size: 40px; margin-bottom: 40px;"></h2>
+        <button onclick="location.reload()" style="padding:20px 50px; font-size:30px; cursor:pointer; border-radius:20px;">REPLAY</button>
     </div>
-
-    <audio id="bg-music" src="background music.mp3" loop></audio>
 
     <script>
         const AudioCtx = window.AudioContext || window.webkitAudioContext;
         let audioCtx;
-        const bgMusic = document.getElementById('bg-music');
-        const musicBtn = document.getElementById('music-toggle');
-        let musicOn = true;
+        let bgSource;
 
         const Sounds = {
-            play(freq, type, duration, vol = 0.1) {
+            async initMusic() {
+                try {
+                    const response = await fetch('background music.mp3');
+                    const arrayBuffer = await response.arrayBuffer();
+                    const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+                    bgSource = audioCtx.createBufferSource();
+                    bgSource.buffer = audioBuffer;
+                    bgSource.loop = true;
+                    const gainNode = audioCtx.createGain();
+                    gainNode.gain.value = 0.3; // Background volume
+                    bgSource.connect(gainNode);
+                    gainNode.connect(audioCtx.destination);
+                    bgSource.start(0);
+                } catch (e) { console.error("Music failed to load", e); }
+            },
+            playEffect(freq, type, duration, vol) {
                 if(!audioCtx) return;
                 const o = audioCtx.createOscillator();
                 const g = audioCtx.createGain();
@@ -151,49 +147,36 @@
                 o.frequency.setValueAtTime(freq, audioCtx.currentTime);
                 g.gain.setValueAtTime(vol, audioCtx.currentTime);
                 g.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + duration);
-                o.connect(g);
-                g.connect(audioCtx.destination);
-                o.start();
-                o.stop(audioCtx.currentTime + duration);
+                o.connect(g); g.connect(audioCtx.destination);
+                o.start(); o.stop(audioCtx.currentTime + duration);
             },
-            chime() { 
-                this.play(880, 'sine', 0.5); 
-                setTimeout(() => this.play(1109, 'sine', 0.5), 100);
-            },
-            buzz() { 
-                this.play(100, 'sawtooth', 0.4, 0.2); 
-            }
+            chime() { this.playEffect(880, 'sine', 0.4, 0.1); },
+            buzz() { this.playEffect(110, 'sawtooth', 0.4, 0.15); }
         };
 
-        let words = [];
+        const words = ["COAT", "DRESS", "HAT", "JACKET", "SKIRT", "SHIRT", "JEANS", "PANTS", "SHORTS"];
         let gameState = {
             a: { score: 0, wordIndex: 0, currentWord: '', progress: 0 },
             b: { score: 0, wordIndex: 0, currentWord: '', progress: 0 }
         };
         let timeLeft = 120, gameActive = false;
 
-        musicBtn.onclick = () => {
-            musicOn = !musicOn;
-            musicBtn.innerText = musicOn ? "🎵 Music: ON" : "🎵 Music: OFF";
-            musicOn ? bgMusic.play() : bgMusic.pause();
-        };
+        document.getElementById('play-btn').addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            initAndStart();
+        });
+        document.getElementById('play-btn').addEventListener('click', initAndStart);
 
-        document.getElementById('edit-btn').onclick = () => document.getElementById('edit-modal').style.display = 'block';
-        function closeEdit() { document.getElementById('edit-modal').style.display = 'none'; }
-        
-        document.getElementById('play-btn').onclick = () => {
+        function initAndStart() {
+            if (gameActive) return;
             if (!audioCtx) audioCtx = new AudioCtx();
-            if (musicOn) bgMusic.play().catch(() => {});
+            Sounds.initMusic();
             startGame();
-        };
+        }
 
         function startGame() {
-            const input = document.getElementById('vocab-input').value;
-            words = input.split(',').map(w => w.trim().toUpperCase()).filter(w => w !== "");
-            
             document.getElementById('start-page').style.display = 'none';
             document.getElementById('game-container').style.display = 'flex';
-            
             gameActive = true;
             setupRound('a');
             setupRound('b');
@@ -204,10 +187,8 @@
             const state = gameState[side];
             state.currentWord = words[state.wordIndex];
             state.progress = 0;
-
             document.getElementById(`img-${side}`).src = `${state.currentWord.toLowerCase()}.jpg`;
             
-            // Create target boxes
             const boxesCont = document.getElementById(`boxes-${side}`);
             boxesCont.innerHTML = '';
             for (let i = 0; i < state.currentWord.length; i++) {
@@ -217,7 +198,6 @@
                 boxesCont.appendChild(box);
             }
 
-            // Create scrambled letters
             const lettersCont = document.getElementById(`letters-${side}`);
             lettersCont.innerHTML = '';
             const scrambled = state.currentWord.split('').sort(() => Math.random() - 0.5);
@@ -226,50 +206,36 @@
                 const btn = document.createElement('div');
                 btn.className = 'letter';
                 btn.textContent = char;
-                btn.onclick = () => handleTap(side, char, btn);
+                const handleInput = (e) => {
+                    e.preventDefault();
+                    if (!gameActive || btn.style.visibility === 'hidden') return;
+                    processTap(side, char, btn);
+                };
+                btn.addEventListener('touchstart', handleInput, {passive: false});
+                btn.addEventListener('mousedown', handleInput);
                 lettersCont.appendChild(btn);
             });
         }
 
-        function handleTap(side, char, btnElement) {
-            if (!gameActive) return;
-
+        function processTap(side, char, btnElement) {
             const state = gameState[side];
-            const expectedChar = state.currentWord[state.progress];
-
-            if (char === expectedChar) {
-                // Correct
-                const targetBox = document.getElementById(`box-${side}-${state.progress}`);
-                targetBox.textContent = char;
-                targetBox.classList.add('filled');
-                
-                // Hide the used letter button
+            if (char === state.currentWord[state.progress]) {
+                document.getElementById(`box-${side}-${state.progress}`).textContent = char;
+                document.getElementById(`box-${side}-${state.progress}`).classList.add('filled');
                 btnElement.style.visibility = 'hidden';
-                
                 state.progress++;
                 Sounds.chime();
-
                 if (state.progress === state.currentWord.length) {
-                    completeWord(side);
+                    gameState[side].score++;
+                    document.getElementById(`score-${side}`).innerText = gameState[side].score;
+                    gameState[side].wordIndex = (gameState[side].wordIndex + 1) % words.length;
+                    setTimeout(() => { if (gameActive) setupRound(side); }, 600);
                 }
             } else {
-                // Wrong
                 Sounds.buzz();
                 btnElement.classList.add('wrong');
-                setTimeout(() => btnElement.classList.remove('wrong'), 300);
+                setTimeout(() => btnElement.classList.remove('wrong'), 250);
             }
-        }
-
-        function completeWord(side) {
-            gameState[side].score++;
-            document.getElementById(`score-${side}`).innerText = gameState[side].score;
-            
-            // Next word logic
-            gameState[side].wordIndex = (gameState[side].wordIndex + 1) % words.length;
-            
-            setTimeout(() => {
-                if (gameActive) setupRound(side);
-            }, 600);
         }
 
         function startTimer() {
@@ -289,13 +255,24 @@
             
             const sA = gameState.a.score;
             const sB = gameState.b.score;
+            let winText = sA > sB ? "TEAM A WINS!" : sB > sA ? "TEAM B WINS!" : "DRAW!";
+            document.getElementById('winner-msg').innerText = winText;
+            document.getElementById('score-summary').innerText = `TEAM A: ${sA} vs TEAM B: ${sB}`;
             
-            let msg = "IT'S A DRAW!";
-            if (sA > sB) msg = "TEAM A WINS!";
-            if (sB > sA) msg = "TEAM B WINS!";
-            
-            document.getElementById('winner-msg').innerText = msg;
-            document.getElementById('score-summary').innerText = `TEAM A: ${sA} | TEAM B: ${sB}`;
+            createConfetti();
+        }
+
+        function createConfetti() {
+            const colors = ['#ff4757', '#2e86de', '#2ecc71', '#f1c40f', '#e67e22'];
+            for (let i = 0; i < 100; i++) {
+                const c = document.createElement('div');
+                c.className = 'confetti';
+                c.style.left = Math.random() * 100 + 'vw';
+                c.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                c.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                c.style.opacity = Math.random();
+                document.getElementById('results-screen').appendChild(c);
+            }
         }
     </script>
 </body>
